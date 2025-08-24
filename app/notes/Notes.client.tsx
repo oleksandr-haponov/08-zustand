@@ -38,7 +38,7 @@ export default function NotesClient() {
     return data.filter(
       (note) =>
         note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [data, searchQuery]);
 
@@ -46,11 +46,12 @@ export default function NotesClient() {
   const totalPages = Math.ceil(filteredNotes.length / NOTES_PER_PAGE);
   const paginatedNotes = filteredNotes.slice(
     (currentPage - 1) * NOTES_PER_PAGE,
-    currentPage * NOTES_PER_PAGE
+    currentPage * NOTES_PER_PAGE,
   );
 
   if (isLoading) return <Loader />;
-  if (isError) return <ErrorMessage message="Could not fetch the list of notes." />;
+  if (isError)
+    return <ErrorMessage message="Could not fetch the list of notes." />;
 
   return (
     <div className={styles.container}>

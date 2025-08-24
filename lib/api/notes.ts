@@ -1,7 +1,8 @@
 import api from "./axios";
 import { Note } from "@/types/note";
 
-const handleError = (error: unknown, action: string) => {
+// универсальная обработка ошибок
+const handleError = (error: unknown, action: string): never => {
   let userMessage = "";
 
   switch (action) {
@@ -27,7 +28,6 @@ const handleError = (error: unknown, action: string) => {
   if (error instanceof Error) {
     throw new Error(`${userMessage} Техническая информация: ${error.message}`);
   }
-
   throw new Error(userMessage);
 };
 
@@ -37,6 +37,7 @@ export const fetchNotes = async (): Promise<Note[]> => {
     return data;
   } catch (error) {
     handleError(error, "fetch notes");
+    throw error; // 👈 добавлено для TS
   }
 };
 
@@ -46,29 +47,32 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
     return data;
   } catch (error) {
     handleError(error, "fetch note");
+    throw error;
   }
 };
 
 export const createNote = async (
-  note: Omit<Note, "id" | "createdAt">
+  note: Omit<Note, "id" | "createdAt">,
 ): Promise<Note> => {
   try {
     const { data } = await api.post("/notes", note);
     return data;
   } catch (error) {
     handleError(error, "create note");
+    throw error;
   }
 };
 
 export const updateNote = async (
   id: string,
-  note: Partial<Note>
+  note: Partial<Note>,
 ): Promise<Note> => {
   try {
     const { data } = await api.put(`/notes/${id}`, note);
     return data;
   } catch (error) {
     handleError(error, "update note");
+    throw error;
   }
 };
 
@@ -78,5 +82,6 @@ export const deleteNote = async (id: string): Promise<Note> => {
     return data;
   } catch (error) {
     handleError(error, "delete note");
+    throw error;
   }
 };

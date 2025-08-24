@@ -8,7 +8,11 @@ interface Props {
   onPageChange: (page: number) => void;
 }
 
-export default function Pagination({ currentPage, totalPages, onPageChange }: Props) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: Props) {
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
