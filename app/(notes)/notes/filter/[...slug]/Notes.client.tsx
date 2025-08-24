@@ -13,18 +13,18 @@ import { useState, useMemo } from "react";
 
 const NOTES_PER_PAGE = 6;
 
-export default function NotesClient() {
+export default function NotesClient({ tag }: { tag?: string }) {
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery<Note[]>({
-    queryKey: ["notes"],
-    queryFn: fetchNotes,
+    queryKey: ["notes", tag],
+    queryFn: () => fetchNotes(tag),
   });
 
   const mutation = useMutation({
     mutationFn: deleteNote,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", tag] });
     },
   });
 
@@ -55,12 +55,12 @@ export default function NotesClient() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Notes</h1>
+      <h1 className={styles.title}>Notes {tag ? `(${tag})` : ""}</h1>
 
       <SearchBox
         onSearch={(query) => {
           setSearchQuery(query);
-          setCurrentPage(1); // при поиске сбрасываем на первую страницу
+          setCurrentPage(1);
         }}
       />
 
