@@ -2,7 +2,7 @@
 
 import NoteEditor from "@/components/NoteEditor/NoteEditor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createNote } from "@/lib/api/notes";
+import { createNote } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function NewNotePage() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchNotes, deleteNote } from "@/lib/api/notes";
+import { fetchNotes, deleteNote } from "@/lib/api";
 import { Note } from "@/types/note";
 import styles from "./Notes.module.css";
 import NoteCard from "@/components/NoteCard/NoteCard";
