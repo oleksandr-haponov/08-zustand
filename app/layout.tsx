@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import QueryProvider from "@/components/Providers/QueryProvider/QueryProvider";
+import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
@@ -27,11 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <QueryProvider>
+        <TanStackProvider>
           <Header />
           <main>{children}</main>
           <Footer />
-        </QueryProvider>
+        </TanStackProvider>
       </body>
     </html>
   );
