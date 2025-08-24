@@ -12,9 +12,7 @@ export default function TagsMenu() {
         {tags.map((tag) => (
           <li key={tag} className={styles.menuItem}>
             <a
-              href={
-                tag === "All" ? "/notes/filter/All" : `/notes/filter/${tag}`
-              }
+              href={tag === "All" ? "/notes/filter/All" : `/notes/filter/${tag}`}
               className={styles.menuLink}
             >
               {tag}
