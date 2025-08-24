@@ -1,11 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { notes } from "@/lib/api/mockData";
 
-export async function GET() {
-  return NextResponse.json(notes);
-}
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.json();
   const newNote = {
     id: Date.now().toString(),
