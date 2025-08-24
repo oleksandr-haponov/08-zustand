@@ -38,7 +38,9 @@
   font-size: 0.95rem;
   font-weight: 400;
   text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .menuLink:hover {
