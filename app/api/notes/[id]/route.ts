@@ -8,7 +8,10 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     : NextResponse.json({ error: "Not found" }, { status: 404 });
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
   const idx = notes.findIndex((n) => n.id === params.id);
   if (idx === -1) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -19,7 +22,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json(notes[idx]);
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _: Request,
+  { params }: { params: { id: string } },
+) {
   const idx = notes.findIndex((n) => n.id === params.id);
   if (idx === -1) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
