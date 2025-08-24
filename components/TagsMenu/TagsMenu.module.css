@@ -49,5 +49,5 @@
 }
 
 .menuItem:first-child .menuLink {
-  font-weight: 400; /* All будет жирным */
+  font-weight: 600; /* All будет жирным */
 }
