@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api/notes";
 import styles from "./NoteDetails.module.css";
+import Loader from "@/components/Loader/Loader";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 
 interface Props {
   id: string;
@@ -14,8 +16,8 @@ export default function NoteDetailsClient({ id }: Props) {
     queryFn: () => fetchNoteById(id),
   });
 
-  if (isLoading) return <p>Loading, please wait...</p>;
-  if (isError || !data) return <p>Something went wrong.</p>;
+  if (isLoading) return <Loader />;
+  if (isError || !data) return <ErrorMessage message="Something went wrong." />;
 
   return (
     <div className={styles.container}>
