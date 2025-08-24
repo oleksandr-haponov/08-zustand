@@ -13,7 +13,6 @@
 }
 
 .menuList {
-  display: none;
   position: absolute;
   top: 100%;
   left: 0;
@@ -28,10 +27,6 @@
   z-index: 1000;
 }
 
-.menuContainer:hover .menuList {
-  display: block;
-}
-
 .menuItem {
   margin: 0;
 }
@@ -39,13 +34,18 @@
 .menuLink {
   display: block;
   padding: 8px 12px;
-  color: #333;
+  color: #333 !important;
   font-size: 0.95rem;
+  font-weight: 400;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .menuLink:hover {
   background-color: #f0f0f0;
-  color: #000;
+  color: #000 !important;
+}
+
+.menuItem:first-child .menuLink {
+  font-weight: 600; /* All будет жирным */
 }
