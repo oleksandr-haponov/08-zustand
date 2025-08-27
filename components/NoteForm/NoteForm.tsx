@@ -4,14 +4,14 @@ import { useState } from "react";
 import type { CreateNotePayload } from "@/lib/api";
 import css from "./NoteForm.module.css";
 
+const TAGS = ["Todo", "Work", "Personal", "Idea", "Other"];
+
 export interface NoteFormProps {
   onSuccess: (payload: CreateNotePayload) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
   errorMsg?: string;
 }
-
-const TAGS = ["Todo", "Work", "Personal", "Idea", "Other"];
 
 export default function NoteForm({
   onSuccess,
@@ -21,16 +21,12 @@ export default function NoteForm({
 }: NoteFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tag, setTag] = useState<string>("Todo");
+  const [tag, setTag] = useState("Todo");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    onSuccess({
-      title: title.trim(),
-      content: content.trim(),
-      tag,
-    });
-  };
+    onSuccess({ title: title.trim(), content: content.trim(), tag });
+  }
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
@@ -39,10 +35,11 @@ export default function NoteForm({
         <input
           id="title"
           className={css.input}
+          placeholder="Enter title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter title"
           required
+          autoFocus
         />
       </div>
 
@@ -51,9 +48,9 @@ export default function NoteForm({
         <textarea
           id="content"
           className={css.textarea}
+          placeholder="Enter content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Enter content"
           required
         />
       </div>
@@ -80,11 +77,7 @@ export default function NoteForm({
         <button type="button" className={css.cancelButton} onClick={onCancel}>
           Cancel
         </button>
-        <button
-          type="submit"
-          className={css.submitButton}
-          disabled={isSubmitting}
-        >
+        <button type="submit" className={css.submitButton} disabled={isSubmitting}>
           {isSubmitting ? "Creating..." : "Create"}
         </button>
       </div>

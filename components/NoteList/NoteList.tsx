@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import type { Note } from "@/types/note";
-import css from "./NoteList.module.css";
+import css from "./NoteList.module.css"; // <-- правильно: свой css модуля
 
 export interface NoteListProps {
   notes: Note[];
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number | string) => void;
   isDeleting?: boolean;
-  deletingId?: number;
+  deletingId?: number | string;
 }
 
 export default function NoteList({
@@ -32,7 +32,7 @@ export default function NoteList({
             </span>
 
             <div style={{ display: "flex", gap: 8 }}>
-              <Link className={css.link} href={`/notes/${n.id}`}>
+              <Link className={css.link} href={`/notes/${String(n.id)}`}>
                 View details
               </Link>
 

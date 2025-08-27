@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Link from "next/link";
-import { fetchNotes, type PaginatedNotesResponse } from "@/lib/api";
+import {
+  fetchNotes,
+  deleteNote,
+  type PaginatedNotesResponse,
+} from "@/lib/api";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import NoteList from "@/components/NoteList/NoteList";
@@ -16,8 +25,10 @@ export default function NotesClient({
 }: {
   initialQ?: string;
   initialPage: number;
-  tag: string | null; // получаем ТОЛЬКО из page.tsx
+  tag: string | null;
 }) {
+  const qc = useQueryClient();
+
   const [search, setSearch] = useState(initialQ ?? "");
   const [debouncedQ, setDebouncedQ] = useState(initialQ ?? "");
   const [page, setPage] = useState(initialPage || 1);
@@ -31,17 +42,20 @@ export default function NotesClient({
     return () => clearTimeout(t);
   }, [search]);
 
-  const { data, isLoading, error, isFetching } =
-    useQuery<PaginatedNotesResponse>({
-      queryKey: ["notes", { q: debouncedQ, page, tag: tag ?? "" }],
-      queryFn: () => fetchNotes({ q: debouncedQ, page, tag: tag ?? undefined }),
-      placeholderData: keepPreviousData,
-      refetchOnWindowFocus: false,
-    });
+  const { data, isLoading, error, isFetching } = useQuery<PaginatedNotesResponse>({
+    queryKey: ["notes", { q: debouncedQ, page, tag: tag ?? "" }],
+    queryFn: () => fetchNotes({ q: debouncedQ, page, tag: tag ?? undefined }),
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
+
+  const del = useMutation({
+    mutationFn: (id: number | string) => deleteNote(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
+  });
 
   if (isLoading) return <p>Loading, please wait...</p>;
-  if (error)
-    return <p>Could not fetch the list of notes. {(error as Error).message}</p>;
+  if (error) return <p>Could not fetch the list of notes. {(error as Error).message}</p>;
 
   const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -50,13 +64,9 @@ export default function NotesClient({
     <div className={css.app}>
       <div className={css.toolbar}>
         <div style={{ flex: "1 1 520px", maxWidth: 520 }}>
-          <SearchBox
-            value={search}
-            onChange={setSearch}
-            placeholder="Search notes..."
-          />
+          <SearchBox value={search} onChange={setSearch} placeholder="Search notes..." />
         </div>
-        {/* Кнопка создаёт заметку в модалке на /notes/New */}
+        {/* кнопка справа */}
         <Link href="/notes/New" className={css.button}>
           Create note
         </Link>
@@ -66,7 +76,12 @@ export default function NotesClient({
         <p>No notes found.</p>
       ) : (
         <>
-          <NoteList notes={notes} />
+          <NoteList
+            notes={notes}
+            onDelete={(id) => del.mutate(id)}
+            isDeleting={del.isPending}
+            deletingId={(del.variables as number | string | undefined) ?? undefined}
+          />
           {totalPages > 1 && (
             <div className={css.paginationWrap}>
               <Pagination

@@ -6,7 +6,7 @@ import css from "./NotePreview.module.css";
 
 export interface NotePreviewProps {
   note?: Note | null;
-  onBack?: () => void; // для кнопки ← Back (например, router.back())
+  onBack?: () => void;
 }
 
 export default function NotePreview({ note, onBack }: NotePreviewProps) {
@@ -19,7 +19,7 @@ export default function NotePreview({ note, onBack }: NotePreviewProps) {
               ← Back
             </button>
           )}
-          <p className={css.content}>Loading…</p>
+          <p className={css.content}>Note not found.</p>
         </div>
       </div>
     );

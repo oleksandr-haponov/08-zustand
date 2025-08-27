@@ -4,8 +4,11 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { notFound } from "next/navigation";
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
+
+const VALID_TAGS = ["All", "Work", "Personal", "Todo", "Idea"];
 
 export default async function FilterPage({
   params,
@@ -18,6 +21,10 @@ export default async function FilterPage({
   const sp = await searchParams;
 
   const tagRaw = slug?.[0] ?? "All";
+  if (!VALID_TAGS.includes(tagRaw)) {
+    notFound(); // покажем /app/not-found.tsx для неизвестного тега
+  }
+
   const tag = tagRaw === "All" ? undefined : tagRaw;
   const q = typeof sp?.q === "string" ? sp.q : "";
   const page = sp?.page ? Number(sp.page) : 1;
