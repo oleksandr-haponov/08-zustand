@@ -31,15 +31,17 @@ export default function NotesClient({
     return () => clearTimeout(t);
   }, [search]);
 
-  const { data, isLoading, error, isFetching } = useQuery<PaginatedNotesResponse>({
-    queryKey: ["notes", { q: debouncedQ, page, tag: tag ?? "" }],
-    queryFn: () => fetchNotes({ q: debouncedQ, page, tag: tag ?? undefined }),
-    placeholderData: keepPreviousData,
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading, error, isFetching } =
+    useQuery<PaginatedNotesResponse>({
+      queryKey: ["notes", { q: debouncedQ, page, tag: tag ?? "" }],
+      queryFn: () => fetchNotes({ q: debouncedQ, page, tag: tag ?? undefined }),
+      placeholderData: keepPreviousData,
+      refetchOnWindowFocus: false,
+    });
 
   if (isLoading) return <p>Loading, please wait...</p>;
-  if (error) return <p>Could not fetch the list of notes. {(error as Error).message}</p>;
+  if (error)
+    return <p>Could not fetch the list of notes. {(error as Error).message}</p>;
 
   const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -48,7 +50,11 @@ export default function NotesClient({
     <div className={css.app}>
       <div className={css.toolbar}>
         <div style={{ flex: "1 1 520px", maxWidth: 520 }}>
-          <SearchBox value={search} onChange={setSearch} placeholder="Search notes..." />
+          <SearchBox
+            value={search}
+            onChange={setSearch}
+            placeholder="Search notes..."
+          />
         </div>
 
         {/* ссылка на страницу создания */}

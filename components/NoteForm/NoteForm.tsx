@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import css from "./NoteForm.module.css";
-import { useNoteStore } from "@/lib/store/noteStore";
+import { useNoteStore, type Tag } from "@/lib/store/noteStore";
 
 export default function NoteForm() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function NoteForm() {
       content: String(formData.get("content") || "").trim(),
       tag: String(formData.get("tag") || "Todo"),
     };
+
     if (!payload.title) return;
 
     const res = await fetch("/api/notes", {
@@ -23,12 +24,16 @@ export default function NoteForm() {
     });
 
     if (res.ok) {
-      clearDraft();
-      router.back(); // вернуться на предыдущую страницу
+      clearDraft(); // очистить draft только при успешном создании
+      router.back(); // вернуться на предыдущий маршрут
     } else {
-      console.error(await res.text());
+      console.error("Failed to create note", await res.text());
     }
   }
+
+  const handleTagChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDraft({ tag: e.target.value as Tag });
+  };
 
   return (
     <form action={handleSubmit} className={css.form}>
@@ -64,7 +69,7 @@ export default function NoteForm() {
           name="tag"
           className={css.select}
           value={draft.tag}
-          onChange={(e) => setDraft({ tag: e.target.value })}
+          onChange={handleTagChange}
         >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
@@ -75,10 +80,16 @@ export default function NoteForm() {
       </div>
 
       <div className={css.actions}>
-        <button type="button" className={css.cancelButton} onClick={() => router.back()}>
+        <button
+          type="button"
+          className={css.cancelButton}
+          onClick={() => router.back()}
+        >
           Cancel
         </button>
-        <button type="submit" className={css.submitButton}>Create</button>
+        <button type="submit" className={css.submitButton}>
+          Create
+        </button>
       </div>
     </form>
   );

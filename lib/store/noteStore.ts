@@ -1,8 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const initialDraft = { title: "", content: "", tag: "Todo" as const };
-type Draft = typeof initialDraft;
+export type Tag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+
+export type Draft = {
+  title: string;
+  content: string;
+  tag: Tag;
+};
+
+export const initialDraft: Draft = {
+  title: "",
+  content: "",
+  tag: "Todo",
+};
 
 type NoteStore = {
   draft: Draft;
@@ -17,6 +28,8 @@ export const useNoteStore = create<NoteStore>()(
       setDraft: (patch) => set((s) => ({ draft: { ...s.draft, ...patch } })),
       clearDraft: () => set({ draft: initialDraft }),
     }),
-    { name: "notehub-draft" },
+    {
+      name: "notehub-draft", // localStorage key
+    },
   ),
 );
