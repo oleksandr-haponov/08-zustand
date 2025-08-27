@@ -1,31 +1,36 @@
 "use client";
 
-import styles from "./NoteCard.module.css";
-import { Note } from "@/types/note";
 import Link from "next/link";
+import type { Note } from "@/types/note";
+import styles from "./NoteCard.module.css";
 
-interface Props {
+export interface NoteCardProps {
   note: Note;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: number | string) => void; // <-- принимаем number | string
 }
 
-export default function NoteCard({ note, onDelete }: Props) {
+export default function NoteCard({ note, onDelete }: NoteCardProps) {
   return (
-    <div className={styles.card}>
-      <h3>{note.title}</h3>
-      <p>{note.content}</p>
-      <small>{new Date(note.createdAt).toLocaleString()}</small>
+    <li className={styles.item}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{note.title}</h3>
+      </div>
+
+      <p className={styles.content}>{note.content}</p>
 
       <div className={styles.actions}>
-        <Link href={`/notes/${note.id}`} className={styles.view}>
+        <Link className={styles.link} href={`/notes/${note.id}`}>
           View details
         </Link>
         {onDelete && (
-          <button onClick={() => onDelete(note.id)} className={styles.delete}>
+          <button
+            onClick={() => onDelete(note.id)} // передаём number — ок
+            className={styles.delete}
+          >
             Delete
           </button>
         )}
       </div>
-    </div>
+    </li>
   );
 }
