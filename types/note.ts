@@ -1,6 +1,8 @@
 export interface Note {
-  id: string;
+  id: number;
   title: string;
   content: string;
-  createdAt: string;
+  tag: string; // <— добавили
+  createdAt: string; // ISO
+  updatedAt: string; // ISO
 }
