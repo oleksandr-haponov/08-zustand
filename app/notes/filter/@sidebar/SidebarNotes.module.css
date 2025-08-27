@@ -5,25 +5,28 @@
   display: grid;
   gap: 12px;
 }
-
 .menuItem {
   margin: 0;
 }
-
-/* делаем ссылки белыми и убираем подчёркивание во всех состояниях */
 .menuLink,
 .menuLink:link,
 .menuLink:visited {
   display: block;
   padding: 8px 16px;
   color: #fff !important;
+
   text-decoration: none !important;
   font-size: 16px;
   border-radius: 6px;
-  transition: background-color 0.2s ease;
+}
+.menuLink:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ddd !important;
 }
 
-.menuLink:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #ddd !important;
+.active,
+.active:link,
+.active:visited {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff !important;
 }

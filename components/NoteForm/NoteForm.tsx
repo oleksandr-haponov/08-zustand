@@ -77,7 +77,11 @@ export default function NoteForm({
         <button type="button" className={css.cancelButton} onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={isSubmitting}>
+        <button
+          type="submit"
+          className={css.submitButton}
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Creating..." : "Create"}
         </button>
       </div>

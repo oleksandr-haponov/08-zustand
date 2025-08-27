@@ -1,8 +1,5 @@
-// серверный компонент — никаких "use client"
 import css from "./SidebarNotes.module.css";
-
 const TAGS = ["All", "Work", "Personal", "Todo", "Idea"];
-
 export default function SidebarNotes() {
   return (
     <nav aria-label="Notes filters">

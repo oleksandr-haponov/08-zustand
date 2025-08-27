@@ -6,7 +6,7 @@ import { createNote, type CreateNotePayload } from "@/lib/api";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 
-export default function NewNotePage() {
+export default function CreateNoteModalClient() {
   const router = useRouter();
   const qc = useQueryClient();
 
