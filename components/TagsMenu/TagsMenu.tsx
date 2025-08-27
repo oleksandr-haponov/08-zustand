@@ -9,9 +9,9 @@ export default function TagsMenu() {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Закрытие по клику вне и по Esc
   useEffect(() => {
     if (!open) return;
+
     const onDoc = (e: MouseEvent) => {
       if (!rootRef.current) return;
       if (!rootRef.current.contains(e.target as Node)) setOpen(false);
@@ -19,11 +19,18 @@ export default function TagsMenu() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onKey);
+
+    // двойная защита от SSR
+    if (typeof document !== "undefined") {
+      document.addEventListener("mousedown", onDoc);
+      document.addEventListener("keydown", onKey);
+    }
+
     return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("keydown", onKey);
+      if (typeof document !== "undefined") {
+        document.removeEventListener("mousedown", onDoc);
+        document.removeEventListener("keydown", onKey);
+      }
     };
   }, [open]);
 
@@ -38,7 +45,6 @@ export default function TagsMenu() {
       >
         Notes ▾
       </button>
-
       {open && (
         <ul className={css.menuList} role="menu" aria-label="Filter by tag">
           {TAGS.map((tag) => {
@@ -46,17 +52,7 @@ export default function TagsMenu() {
               tag === "All" ? "/notes/filter/All" : `/notes/filter/${tag}`;
             return (
               <li key={tag} className={css.menuItem} role="none">
-                <a
-                  href={href}
-                  className={css.menuLink}
-                  role="menuitem"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      (e.currentTarget as HTMLAnchorElement).click();
-                    }
-                  }}
-                >
+                <a className={css.menuLink} role="menuitem" href={href}>
                   {tag}
                 </a>
               </li>

@@ -12,14 +12,19 @@ export default function Modal({
   onClose: () => void;
   children: ReactNode;
 }) {
-  // Закрытие по Esc
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", onKey);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("keydown", onKey);
+      }
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -34,7 +39,6 @@ export default function Modal({
       aria-modal="true"
     >
       <div className={css.modal} onClick={stop}>
-        {/* Кнопка закрытия (инлайн-стили, чтобы не требовать отдельного класса) */}
         <button
           onClick={onClose}
           aria-label="Close"
