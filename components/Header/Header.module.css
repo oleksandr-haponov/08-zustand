@@ -1,3 +1,5 @@
+/* components/Header/Header.module.css */
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -7,7 +9,10 @@
   color: white;
 }
 
-.headerLink {
+/* логотип/бренд */
+.headerLink,
+.headerLink:link,
+.headerLink:visited {
   text-decoration: none;
   color: white;
   font-size: 1.5rem;
@@ -16,8 +21,10 @@
 
 .headerLink:hover {
   color: #ddd;
+  text-decoration: none;
 }
 
+/* навигация справа */
 .navigation {
   list-style-type: none;
   margin: 0;
@@ -31,7 +38,10 @@
   align-items: center;
 }
 
-.navigationLink {
+/* ссылки в меню */
+.navigationLink,
+.navigationLink:link,
+.navigationLink:visited {
   text-decoration: none;
   color: white;
   font-size: 1rem;
@@ -39,4 +49,5 @@
 
 .navigationLink:hover {
   color: #ddd;
+  text-decoration: none;
 }

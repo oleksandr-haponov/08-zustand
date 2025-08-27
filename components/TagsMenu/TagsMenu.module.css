@@ -1,3 +1,5 @@
+/* components/TagsMenu/TagsMenu.module.css */
+
 .menuContainer {
   position: relative;
   display: inline-block;
@@ -40,7 +42,10 @@
   margin: 0;
 }
 
-.menuLink {
+/* убираем фиолетовый visited и подчёркивание */
+.menuLink,
+.menuLink:link,
+.menuLink:visited {
   display: block;
   padding: 8px 16px;
   color: #f0f0f0;
