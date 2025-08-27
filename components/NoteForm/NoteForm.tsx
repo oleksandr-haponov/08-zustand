@@ -1,45 +1,47 @@
 "use client";
 
-import { useState } from "react";
-import type { CreateNotePayload } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import css from "./NoteForm.module.css";
+import { useNoteStore } from "@/lib/store/noteStore";
 
-const TAGS = ["Todo", "Work", "Personal", "Idea", "Other"];
+export default function NoteForm() {
+  const router = useRouter();
+  const { draft, setDraft, clearDraft } = useNoteStore();
 
-export interface NoteFormProps {
-  onSuccess: (payload: CreateNotePayload) => void;
-  onCancel: () => void;
-  isSubmitting?: boolean;
-  errorMsg?: string;
-}
+  async function handleSubmit(formData: FormData) {
+    const payload = {
+      title: String(formData.get("title") || "").trim(),
+      content: String(formData.get("content") || "").trim(),
+      tag: String(formData.get("tag") || "Todo"),
+    };
+    if (!payload.title) return;
 
-export default function NoteForm({
-  onSuccess,
-  onCancel,
-  isSubmitting,
-  errorMsg,
-}: NoteFormProps) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tag, setTag] = useState("Todo");
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    onSuccess({ title: title.trim(), content: content.trim(), tag });
+    if (res.ok) {
+      clearDraft();
+      router.back(); // вернуться на предыдущую страницу
+    } else {
+      console.error(await res.text());
+    }
   }
 
   return (
-    <form className={css.form} onSubmit={handleSubmit}>
+    <form action={handleSubmit} className={css.form}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
         <input
           id="title"
+          name="title"
           className={css.input}
+          value={draft.title}
+          onChange={(e) => setDraft({ title: e.target.value })}
           placeholder="Enter title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
           required
-          autoFocus
         />
       </div>
 
@@ -47,11 +49,11 @@ export default function NoteForm({
         <label htmlFor="content">Content</label>
         <textarea
           id="content"
+          name="content"
           className={css.textarea}
+          value={draft.content}
+          onChange={(e) => setDraft({ content: e.target.value })}
           placeholder="Enter content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
         />
       </div>
 
@@ -59,31 +61,24 @@ export default function NoteForm({
         <label htmlFor="tag">Tag</label>
         <select
           id="tag"
+          name="tag"
           className={css.select}
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
+          value={draft.tag}
+          onChange={(e) => setDraft({ tag: e.target.value })}
         >
-          {TAGS.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
         </select>
       </div>
 
-      {errorMsg && <p className={css.error}>{errorMsg}</p>}
-
       <div className={css.actions}>
-        <button type="button" className={css.cancelButton} onClick={onCancel}>
+        <button type="button" className={css.cancelButton} onClick={() => router.back()}>
           Cancel
         </button>
-        <button
-          type="submit"
-          className={css.submitButton}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Creating..." : "Create"}
-        </button>
+        <button type="submit" className={css.submitButton}>Create</button>
       </div>
     </form>
   );

@@ -1,14 +1,30 @@
-// app/notes/filter/[...slug]/page.tsx
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import { notFound } from "next/navigation";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
+import type { Metadata } from "next";
 
-const VALID_TAGS = ["All", "Work", "Personal", "Todo", "Idea"];
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export async function generateMetadata({
+  params,
+}: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const tagRaw = slug?.[0] ?? "All";
+  const title = `NoteHub — ${tagRaw} notes`;
+  const description =
+    tagRaw === "All" ? "Browse all notes in NoteHub." : `Browse notes filtered by tag "${tagRaw}".`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/notes/filter/${tagRaw}`,
+      images: [{ url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg", width: 1200, height: 630, alt: "NoteHub" }],
+    },
+  };
+}
 
 export default async function FilterPage({
   params,
@@ -19,12 +35,7 @@ export default async function FilterPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
-
   const tagRaw = slug?.[0] ?? "All";
-  if (!VALID_TAGS.includes(tagRaw)) {
-    notFound(); // покажем /app/not-found.tsx для неизвестного тега
-  }
-
   const tag = tagRaw === "All" ? undefined : tagRaw;
   const q = typeof sp?.q === "string" ? sp.q : "";
   const page = sp?.page ? Number(sp.page) : 1;
