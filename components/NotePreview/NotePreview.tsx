@@ -1,18 +1,49 @@
 "use client";
 
-import styles from "./NotePreview.module.css";
-import { Note } from "@/types/note";
+import type { Note } from "@/types/note";
+import { formatDateUTC } from "@/lib/format";
+import css from "./NotePreview.module.css";
 
-interface Props {
-  note: Note;
+export interface NotePreviewProps {
+  note?: Note | null;
+  onBack?: () => void; // для кнопки ← Back (например, router.back())
 }
 
-export default function NotePreview({ note }: Props) {
+export default function NotePreview({ note, onBack }: NotePreviewProps) {
+  if (!note) {
+    return (
+      <div className={css.container}>
+        <div className={css.item}>
+          {onBack && (
+            <button className={css.backBtn} onClick={onBack}>
+              ← Back
+            </button>
+          )}
+          <p className={css.content}>Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>{note.title}</h2>
-      <p className={styles.content}>{note.content}</p>
-      <p className={styles.date}>{new Date(note.createdAt).toLocaleString()}</p>
+    <div className={css.container}>
+      <div className={css.item}>
+        {onBack && (
+          <button className={css.backBtn} onClick={onBack}>
+            ← Back
+          </button>
+        )}
+
+        <div className={css.header}>
+          <h2>{note.title}</h2>
+          <span className={css.tag} title={note.tag}>
+            {note.tag}
+          </span>
+        </div>
+
+        <p className={css.content}>{note.content}</p>
+        <p className={css.date}>{formatDateUTC(note.createdAt)}</p>
+      </div>
     </div>
   );
 }

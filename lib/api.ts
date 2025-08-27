@@ -1,35 +1,57 @@
+// lib/api.ts
 import api from "./api/axios";
-import { Note } from "@/types/note";
+import type { Note } from "@/types/note";
 
-// ✅ fetchNotes с поддержкой фильтрации по тегу
-export const fetchNotes = async (tag?: string): Promise<Note[]> => {
-  const { data } = await api.get("/notes", {
-    params: tag ? { tag } : {}, // если тег передан → добавляем в query params
-  });
-  return data;
-};
+export interface PaginatedNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
 
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await api.get(`/notes/${id}`);
-  return data;
-};
+export interface NotesQueryParams {
+  q?: string;
+  page?: number;
+  tag?: string; // если выбран "All" — не передаём вовсе
+}
 
-export const createNote = async (
-  note: Omit<Note, "id" | "createdAt">,
-): Promise<Note> => {
-  const { data } = await api.post("/notes", note);
-  return data;
-};
+export type CreateNotePayload = Pick<Note, "title" | "content" | "tag">;
+export type UpdateNotePayload = Partial<Pick<Note, "title" | "content" | "tag">>;
 
-export const updateNote = async (
-  id: string,
-  note: Partial<Note>,
-): Promise<Note> => {
-  const { data } = await api.put(`/notes/${id}`, note);
+/** Список заметок (с пагинацией и фильтром по тегу) */
+export async function fetchNotes(
+  params: NotesQueryParams = {},
+): Promise<PaginatedNotesResponse> {
+  const { q, page, tag } = params;
+  const qs: Record<string, string | number | undefined> = {
+    q,
+    page,
+    ...(tag ? { tag } : {}), // "All" не отправляем
+  };
+  const { data } = await api.get<PaginatedNotesResponse>("/notes", { params: qs });
   return data;
-};
+}
 
-export const deleteNote = async (id: string): Promise<Note> => {
-  const { data } = await api.delete(`/notes/${id}`);
+/** Детали заметки */
+export async function fetchNoteById(id: number | string): Promise<Note> {
+  const { data } = await api.get<Note>(`/notes/${id}`);
   return data;
-};
+}
+
+/** Создание заметки */
+export async function createNote(payload: CreateNotePayload): Promise<Note> {
+  const { data } = await api.post<Note>("/notes", payload);
+  return data;
+}
+
+/** Обновление заметки (PATCH, не PUT) */
+export async function updateNote(
+  id: number | string,
+  patch: UpdateNotePayload,
+): Promise<Note> {
+  const { data } = await api.patch<Note>(`/notes/${id}`, patch);
+  return data;
+}
+
+/** Удаление заметки */
+export async function deleteNote(id: number | string): Promise<void> {
+  await api.delete<void>(`/notes/${id}`);
+}

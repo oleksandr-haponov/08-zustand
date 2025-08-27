@@ -1,37 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 
 export const metadata: Metadata = {
   title: "NoteHub",
-  description: "Next.js NoteHub App",
+  description: "Notes manager built with Next.js",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  modal, // обязателен, так как slot @modal есть на корне
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
+        <Header />
         <TanStackProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          {children}
+          {modal}
         </TanStackProvider>
+        <Footer />
       </body>
     </html>
   );

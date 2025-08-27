@@ -8,7 +8,19 @@ export default function TanStackProvider({
 }: {
   children: ReactNode;
 }) {
-  const [queryClient] = useState(() => new QueryClient());
+  // стабильный QueryClient на клиентах
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // типичные настройки для нашего проекта
+            refetchOnWindowFocus: false,
+            retry: 1,
+          },
+        },
+      }),
+  );
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

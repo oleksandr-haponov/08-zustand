@@ -1,32 +1,28 @@
 "use client";
 
-import styles from "./SearchBox.module.css";
-import { useState } from "react";
+import css from "./SearchBox.module.css";
 
-interface Props {
-  onSearch: (query: string) => void;
+export interface SearchBoxProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  "aria-label"?: string;
 }
 
-export default function SearchBox({ onSearch }: Props) {
-  const [query, setQuery] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(query.trim());
-  };
-
+export default function SearchBox({
+  value,
+  onChange,
+  placeholder = "Search...",
+  "aria-label": ariaLabel = "Search notes",
+}: SearchBoxProps) {
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <input
-        className={styles.input}
-        type="text"
-        placeholder="Search notes..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button type="submit" className={styles.button}>
-        Search
-      </button>
-    </form>
+    <input
+      className={css.input}
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+    />
   );
 }

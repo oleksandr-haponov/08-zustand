@@ -1,34 +1,41 @@
 "use client";
 
-import styles from "./Pagination.module.css";
+import ReactPaginate from "react-paginate";
+import css from "./Pagination.module.css";
 
-interface Props {
-  currentPage: number;
-  totalPages: number;
+export interface PaginationProps {
+  pageCount: number;
+  currentPage: number; // 1-based
   onPageChange: (page: number) => void;
+  isFetchingPage?: boolean;
 }
 
 export default function Pagination({
+  pageCount,
   currentPage,
-  totalPages,
   onPageChange,
-}: Props) {
-  if (totalPages <= 1) return null;
-
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
+  isFetchingPage,
+}: PaginationProps) {
   return (
-    <div className={styles.pagination}>
-      {pages.map((page) => (
-        <button
-          key={page}
-          className={`${styles.button} ${page === currentPage ? styles.active : ""}`}
-          onClick={() => onPageChange(page)}
-          disabled={page === currentPage}
+    <nav aria-label="Pagination">
+      {isFetchingPage && (
+        <span
+          style={{ display: "block", textAlign: "center", marginBottom: 8 }}
         >
-          {page}
-        </button>
-      ))}
-    </div>
+          Loading...
+        </span>
+      )}
+      <ReactPaginate
+        pageCount={pageCount}
+        forcePage={Math.max(0, currentPage - 1)}
+        onPageChange={(sel) => onPageChange(sel.selected + 1)}
+        previousLabel="<"
+        nextLabel=">"
+        containerClassName={css.pagination}
+        activeClassName={css.active}
+        disabledClassName={css.disabled}
+        // li/a стилизуются через селекторы в CSS-модуле
+      />
+    </nav>
   );
 }
