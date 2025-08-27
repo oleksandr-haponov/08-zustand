@@ -14,7 +14,9 @@ export interface NotesQueryParams {
 }
 
 export type CreateNotePayload = Pick<Note, "title" | "content" | "tag">;
-export type UpdateNotePayload = Partial<Pick<Note, "title" | "content" | "tag">>;
+export type UpdateNotePayload = Partial<
+  Pick<Note, "title" | "content" | "tag">
+>;
 
 /** Список заметок (с пагинацией и фильтром по тегу) */
 export async function fetchNotes(
@@ -26,7 +28,9 @@ export async function fetchNotes(
     page,
     ...(tag ? { tag } : {}), // "All" не отправляем
   };
-  const { data } = await api.get<PaginatedNotesResponse>("/notes", { params: qs });
+  const { data } = await api.get<PaginatedNotesResponse>("/notes", {
+    params: qs,
+  });
   return data;
 }
 
