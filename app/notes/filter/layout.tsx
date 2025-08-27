@@ -3,7 +3,7 @@ import css from "./layout.module.css";
 
 export default function FilterLayout({
   children,
-  sidebar,
+  sidebar, // <— имя слота должно совпадать с @sidebar
 }: {
   children: ReactNode;
   sidebar: ReactNode;
