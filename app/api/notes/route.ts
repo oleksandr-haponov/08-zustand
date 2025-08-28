@@ -12,7 +12,9 @@ function filter(all: Note[], q?: string, tag?: string) {
       (n) =>
         n.title.toLowerCase().includes(s) ||
         n.content.toLowerCase().includes(s) ||
-        String(n.tag ?? "").toLowerCase().includes(s),
+        String(n.tag ?? "")
+          .toLowerCase()
+          .includes(s),
     );
   }
   if (tag && tag !== "All") {
@@ -43,7 +45,9 @@ export async function GET(req: NextRequest) {
 
 // POST /api/notes
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as Partial<Pick<Note, "title" | "content" | "tag">>;
+  const body = (await req.json()) as Partial<
+    Pick<Note, "title" | "content" | "tag">
+  >;
 
   // title и tag обязательны; content — опционален
   if (!body?.title || !body?.tag) {
@@ -52,7 +56,8 @@ export async function POST(req: NextRequest) {
 
   const now = new Date().toISOString();
   // строковый id
-  const id = (globalThis.crypto?.randomUUID?.() ?? Date.now().toString()) as string;
+  const id = (globalThis.crypto?.randomUUID?.() ??
+    Date.now().toString()) as string;
 
   const newNote: Note = {
     id,

@@ -4,7 +4,8 @@ import { notes } from "@/lib/api/mockData";
 type Note = (typeof notes)[number];
 type PatchBody = Partial<Pick<Note, "title" | "content" | "tag">>;
 
-const isValidId = (id: string) => typeof id === "string" && id.trim().length > 0;
+const isValidId = (id: string) =>
+  typeof id === "string" && id.trim().length > 0;
 
 // GET /api/notes/[id]
 export async function GET(
