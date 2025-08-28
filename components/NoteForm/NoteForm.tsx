@@ -1,15 +1,32 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote, type CreateNotePayload } from "@/lib/api";
 import css from "./NoteForm.module.css";
 import { useNoteStore, type Tag } from "@/lib/store/noteStore";
 
 export default function NoteForm() {
   const router = useRouter();
+  const qc = useQueryClient();
   const { draft, setDraft, clearDraft } = useNoteStore();
 
+  // Мутация создания + инвалидация кеша ["notes"]
+  const {
+    mutateAsync: createAsync,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (payload: CreateNotePayload) => createNote(payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
+
+  // Нативная HTML-форма: form action
   async function handleSubmit(formData: FormData) {
-    const payload = {
+    const payload: CreateNotePayload = {
       title: String(formData.get("title") || "").trim(),
       content: String(formData.get("content") || "").trim(),
       tag: String(formData.get("tag") || "Todo"),
@@ -17,17 +34,12 @@ export default function NoteForm() {
 
     if (!payload.title) return;
 
-    const res = await fetch("/api/notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      clearDraft(); // очистить draft только при успешном создании
+    try {
+      await createAsync(payload);
+      clearDraft(); // очистить draft ТОЛЬКО при успехе
       router.back(); // вернуться на предыдущий маршрут
-    } else {
-      console.error("Failed to create note", await res.text());
+    } catch {
+      // Ошибку покажем ниже (isError + error.message)
     }
   }
 
@@ -79,16 +91,24 @@ export default function NoteForm() {
         </select>
       </div>
 
+      {isError && (
+        <p className={css.error}>
+          {(error as Error)?.message ?? "Failed to create note"}
+        </p>
+      )}
+
       <div className={css.actions}>
+        {/* Cancel: НЕ очищает draft, только назад */}
         <button
           type="button"
           className={css.cancelButton}
           onClick={() => router.back()}
+          disabled={isPending}
         >
           Cancel
         </button>
-        <button type="submit" className={css.submitButton}>
-          Create
+        <button type="submit" className={css.submitButton} disabled={isPending}>
+          {isPending ? "Creating..." : "Create"}
         </button>
       </div>
     </form>
