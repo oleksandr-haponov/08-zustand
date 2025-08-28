@@ -12,12 +12,10 @@ function filter(all: Note[], q?: string, tag?: string) {
       (n) =>
         n.title.toLowerCase().includes(s) ||
         n.content.toLowerCase().includes(s) ||
-        String(n.tag ?? "")
-          .toLowerCase()
-          .includes(s),
+        String(n.tag ?? "").toLowerCase().includes(s),
     );
   }
-  if (tag) {
+  if (tag && tag !== "All") {
     res = res.filter((n) => n.tag === tag);
   }
   return res;
@@ -45,24 +43,19 @@ export async function GET(req: NextRequest) {
 
 // POST /api/notes
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as Partial<
-    Pick<Note, "title" | "content" | "tag">
-  >;
+  const body = (await req.json()) as Partial<Pick<Note, "title" | "content" | "tag">>;
 
-  // title и tag обязательны, content — опционален
   if (!body?.title || !body?.tag) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const now = new Date().toISOString();
-  // генерируем СТРОКОВЫЙ id (UUID или Date.now())
-  const id = (globalThis.crypto?.randomUUID?.() ??
-    Date.now().toString()) as string;
+  const id = (globalThis.crypto?.randomUUID?.() ?? Date.now().toString()) as string;
 
   const newNote: Note = {
     id,
-    title: body.title,
-    content: body.content ?? "",
+    title: body.title.trim(),
+    content: (body.content ?? "").trim(),
     tag: body.tag,
     createdAt: now,
     updatedAt: now,
@@ -70,4 +63,22 @@ export async function POST(req: NextRequest) {
 
   notes.unshift(newNote);
   return NextResponse.json(newNote, { status: 201 });
+}
+
+// DELETE /api/notes?id=<id>
+export async function DELETE(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+
+  if (!id || !id.trim()) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const idx = notes.findIndex((n) => n.id === id);
+  if (idx === -1) {
+    return NextResponse.json({ error: "Note not found" }, { status: 404 });
+  }
+
+  const [deleted] = notes.splice(idx, 1);
+  return NextResponse.json(deleted);
 }
