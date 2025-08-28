@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notes } from "@/lib/api/mockData";
 
 type Note = (typeof notes)[number];
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 2;
 
 function filter(all: Note[], q?: string, tag?: string) {
   let res = all;
