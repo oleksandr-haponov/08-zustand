@@ -3,7 +3,6 @@ import { notes } from "@/lib/api/mockData";
 
 type Note = (typeof notes)[number];
 
-// 👇 уменьши в демо, чтобы пагинация гарантированно была видна
 const PAGE_SIZE = 10;
 
 function filter(all: Note[], q?: string, tag?: string) {
@@ -17,9 +16,7 @@ function filter(all: Note[], q?: string, tag?: string) {
       (n) =>
         n.title.toLowerCase().includes(query) ||
         n.content.toLowerCase().includes(query) ||
-        String(n.tag ?? "")
-          .toLowerCase()
-          .includes(query),
+        String(n.tag ?? "").toLowerCase().includes(query),
     );
   }
 
@@ -28,10 +25,8 @@ function filter(all: Note[], q?: string, tag?: string) {
     res = res.filter((n) => n.tag === tagFilter);
   }
 
-  // сортируем по дате создания (свежие первыми), чтобы список был стабильным
-  res = res.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-
-  return res;
+  // свежие первыми
+  return res.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
 function paginate(all: Note[], page: number) {
@@ -59,17 +54,13 @@ export async function GET(req: NextRequest) {
 
 // POST /api/notes
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as Partial<
-    Pick<Note, "title" | "content" | "tag">
-  >;
-
+  const body = (await req.json()) as Partial<Pick<Note, "title" | "content" | "tag">>;
   if (!body?.title || !body?.tag) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const now = new Date().toISOString();
-  const id = (globalThis.crypto?.randomUUID?.() ??
-    Date.now().toString()) as string;
+  const id = (globalThis.crypto?.randomUUID?.() ?? Date.now().toString()) as string;
 
   const newNote: Note = {
     id,
@@ -82,4 +73,22 @@ export async function POST(req: NextRequest) {
 
   notes.unshift(newNote);
   return NextResponse.json(newNote, { status: 201 });
+}
+
+// DELETE /api/notes?id=<id>
+export async function DELETE(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+
+  if (!id || !id.trim()) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const idx = notes.findIndex((n) => n.id === id);
+  if (idx === -1) {
+    return NextResponse.json({ error: "Note not found" }, { status: 404 });
+  }
+
+  const [deleted] = notes.splice(idx, 1);
+  return NextResponse.json(deleted);
 }
