@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteNote } from "@/lib/api";
+import { deleteNote, type PaginatedNotesResponse } from "@/lib/api";
 import type { Note } from "@/types/note";
 import css from "./NoteList.module.css";
 
@@ -13,9 +13,44 @@ export interface NoteListProps {
 export default function NoteList({ notes }: NoteListProps) {
   const qc = useQueryClient();
 
-  const { mutate, isPending, variables, isError, error } = useMutation({
+  const {
+    mutate,
+    isPending,
+    variables: deletingId,
+    isError,
+    error,
+  } = useMutation({
     mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
+
+    // оптимистичное обновление — вырезаем карточку из всех кэшей ["notes", ...]
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: ["notes"] });
+      const prev = qc.getQueriesData<PaginatedNotesResponse>({ queryKey: ["notes"] });
+
+      prev.forEach(([key, data]) => {
+        if (!data) return;
+        qc.setQueryData<PaginatedNotesResponse>(key, {
+          ...data,
+          notes: data.notes.filter((n) => n.id !== id),
+        });
+      });
+
+      return { prev };
+    },
+
+    // откат при ошибке
+    onError: (_err, _id, ctx) => {
+      if (ctx?.prev) {
+        ctx.prev.forEach(([key, data]) => {
+          qc.setQueryData(key, data);
+        });
+      }
+    },
+
+    // на всякий — инвалидация, чтобы подтянуть актуальный список
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["notes"] });
+    },
   });
 
   if (!notes?.length) return null;
@@ -23,7 +58,8 @@ export default function NoteList({ notes }: NoteListProps) {
   return (
     <ul className={css.list}>
       {notes.map((n) => {
-        const pending = isPending && variables === n.id;
+        const pending = isPending && deletingId === n.id;
+
         return (
           <li key={n.id} className={css.listItem}>
             <h3 className={css.title}>{n.title}</h3>
@@ -50,7 +86,7 @@ export default function NoteList({ notes }: NoteListProps) {
               </div>
             </div>
 
-            {isError && variables === n.id && (
+            {isError && deletingId === n.id && (
               <p className={css.error}>
                 {(error as Error)?.message ?? "Failed to delete note"}
               </p>
