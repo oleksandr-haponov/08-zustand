@@ -2,39 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { notes } from "@/lib/api/mockData";
 
 type Note = (typeof notes)[number];
-
 const PAGE_SIZE = 10;
 
 function filter(all: Note[], q?: string, tag?: string) {
   let res = all;
-
-  const query = q?.trim().toLowerCase();
-  const tagFilter = tag?.trim();
-
-  if (query) {
+  if (q) {
+    const s = q.toLowerCase();
     res = res.filter(
       (n) =>
-        n.title.toLowerCase().includes(query) ||
-        n.content.toLowerCase().includes(query) ||
-        String(n.tag ?? "").toLowerCase().includes(query),
+        n.title.toLowerCase().includes(s) ||
+        n.content.toLowerCase().includes(s) ||
+        String(n.tag ?? "").toLowerCase().includes(s),
     );
   }
-
-  // если прилетит "All" — игнорируем
-  if (tagFilter && tagFilter !== "All") {
-    res = res.filter((n) => n.tag === tagFilter);
+  if (tag && tag !== "All") {
+    res = res.filter((n) => n.tag === tag);
   }
-
-  // свежие первыми
-  return res.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return res;
 }
 
 function paginate(all: Note[], page: number) {
   const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
-  const p = Math.min(
-    Math.max(1, Number.isFinite(page) && page > 0 ? page : 1),
-    totalPages,
-  );
+  const p = Math.min(Math.max(1, page || 1), totalPages);
   const start = (p - 1) * PAGE_SIZE;
   return { items: all.slice(start, start + PAGE_SIZE), totalPages };
 }
@@ -55,11 +44,14 @@ export async function GET(req: NextRequest) {
 // POST /api/notes
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as Partial<Pick<Note, "title" | "content" | "tag">>;
+
+  // title и tag обязательны; content — опционален
   if (!body?.title || !body?.tag) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const now = new Date().toISOString();
+  // строковый id
   const id = (globalThis.crypto?.randomUUID?.() ?? Date.now().toString()) as string;
 
   const newNote: Note = {
@@ -79,7 +71,6 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
-
   if (!id || !id.trim()) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
