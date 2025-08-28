@@ -25,7 +25,9 @@ export default function NoteList({ notes }: NoteListProps) {
     // оптимистичное обновление — вырезаем карточку из всех кэшей ["notes", ...]
     onMutate: async (id: string) => {
       await qc.cancelQueries({ queryKey: ["notes"] });
-      const prev = qc.getQueriesData<PaginatedNotesResponse>({ queryKey: ["notes"] });
+      const prev = qc.getQueriesData<PaginatedNotesResponse>({
+        queryKey: ["notes"],
+      });
 
       prev.forEach(([key, data]) => {
         if (!data) return;

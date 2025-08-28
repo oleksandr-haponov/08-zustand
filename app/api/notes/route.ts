@@ -17,7 +17,9 @@ function filter(all: Note[], q?: string, tag?: string) {
       (n) =>
         n.title.toLowerCase().includes(query) ||
         n.content.toLowerCase().includes(query) ||
-        String(n.tag ?? "").toLowerCase().includes(query),
+        String(n.tag ?? "")
+          .toLowerCase()
+          .includes(query),
     );
   }
 
@@ -34,7 +36,10 @@ function filter(all: Note[], q?: string, tag?: string) {
 
 function paginate(all: Note[], page: number) {
   const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
-  const p = Math.min(Math.max(1, Number.isFinite(page) && page > 0 ? page : 1), totalPages);
+  const p = Math.min(
+    Math.max(1, Number.isFinite(page) && page > 0 ? page : 1),
+    totalPages,
+  );
   const start = (p - 1) * PAGE_SIZE;
   return { items: all.slice(start, start + PAGE_SIZE), totalPages };
 }
@@ -54,14 +59,17 @@ export async function GET(req: NextRequest) {
 
 // POST /api/notes
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as Partial<Pick<Note, "title" | "content" | "tag">>;
+  const body = (await req.json()) as Partial<
+    Pick<Note, "title" | "content" | "tag">
+  >;
 
   if (!body?.title || !body?.tag) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   const now = new Date().toISOString();
-  const id = (globalThis.crypto?.randomUUID?.() ?? Date.now().toString()) as string;
+  const id = (globalThis.crypto?.randomUUID?.() ??
+    Date.now().toString()) as string;
 
   const newNote: Note = {
     id,
