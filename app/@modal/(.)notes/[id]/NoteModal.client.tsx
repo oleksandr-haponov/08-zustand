@@ -24,7 +24,12 @@ export default function NoteModalClient({ id }: { id: string }) {
         <div style={{ padding: 16 }}>
           <button
             onClick={() => router.back()}
-            style={{ background: "transparent", border: "none", textDecoration: "underline", cursor: "pointer" }}
+            style={{
+              background: "transparent",
+              border: "none",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
           >
             ← Back
           </button>
